@@ -1,0 +1,13 @@
+{
+  "title": "Malicious Service Installation for Persistence",
+  "id": "crucible-new-service",
+  "status": "experimental",
+  "description": "Detects sc create commands pointing to suspicious temp directory binaries.",
+  "tags": ["attack.persistence", "attack.t1543.003"],
+  "logsource": {"category": "process_creation"},
+  "detection": {
+    "selection": {"class_uid": 1007, "process.cmd_line|contains": "sc create"},
+    "condition": "selection"
+  },
+  "level": "high"
+}

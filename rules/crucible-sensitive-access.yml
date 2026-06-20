@@ -1,0 +1,13 @@
+{
+  "title": "Sensitive Database Access — Patient Records",
+  "id": "crucible-sensitive-access",
+  "status": "experimental",
+  "description": "Detects SQL queries against patient_records table — potential HIPAA violation.",
+  "tags": ["attack.collection", "attack.t1005"],
+  "logsource": {"category": "process_creation"},
+  "detection": {
+    "selection": {"class_uid": 1007, "process.cmd_line|contains": "patient_records"},
+    "condition": "selection"
+  },
+  "level": "high"
+}

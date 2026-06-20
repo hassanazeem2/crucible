@@ -1,0 +1,66 @@
+services:
+  victim:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: ["victim", "--raw-dir", "/data/raw"]
+    networks: [range]
+    volumes:
+      - ./artifacts/docker:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health')"]
+      interval: 1s
+      timeout: 1s
+      retries: 20
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: ["no-new-privileges:true"]
+
+  attacker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: ["attack", "--url", "http://victim:8080", "--raw-dir", "/data/raw"]
+    depends_on:
+      victim:
+        condition: service_healthy
+      pcap:
+        condition: service_started
+    networks: [range]
+    volumes:
+      - ./artifacts/docker:/data
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: ["no-new-privileges:true"]
+
+  monitor:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: ["monitor", "--raw-dir", "/data/raw", "--output-dir", "/data"]
+    depends_on:
+      attacker:
+        condition: service_completed_successfully
+    networks: [range]
+    volumes:
+      - ./artifacts/docker:/data
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: ["no-new-privileges:true"]
+
+  pcap:
+    image: nicolaka/netshoot:v0.13
+    command: ["tcpdump", "-U", "-i", "any", "-w", "/data/capture.pcap", "tcp port 8080"]
+    network_mode: "service:victim"
+    depends_on:
+      victim:
+        condition: service_healthy
+    volumes:
+      - ./artifacts/docker:/data
+    cap_drop: [ALL]
+    cap_add: [NET_RAW, NET_ADMIN]
+    security_opt: ["no-new-privileges:true"]
+
+networks:
+  range:
+    internal: true

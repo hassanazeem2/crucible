@@ -1,0 +1,13 @@
+{
+  "title": "PHI Export to Personal Email",
+  "id": "crucible-phi-export",
+  "status": "experimental",
+  "description": "Detects email send commands with patient data attachments — HIPAA violation.",
+  "tags": ["attack.exfiltration", "attack.t1048"],
+  "logsource": {"category": "process_creation"},
+  "detection": {
+    "selection": {"class_uid": 1007, "process.cmd_line|contains": "send_email"},
+    "condition": "selection"
+  },
+  "level": "critical"
+}

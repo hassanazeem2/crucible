@@ -1,0 +1,32 @@
+name: Detection replay
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Run unit and replay tests
+        run: make test
+      - name: Produce deterministic recording
+        run: make demo
+      - name: Enforce detection quality gate
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          metrics = json.loads(Path("artifacts/latest/metrics.json").read_text())
+          assert metrics["coverage_percent"] == 100.0, metrics
+          assert metrics["false_positive_count"] == 0, metrics
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: detection-time-machine-recording
+          path: artifacts/latest
+

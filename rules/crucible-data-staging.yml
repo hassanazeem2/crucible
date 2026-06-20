@@ -1,0 +1,13 @@
+{
+  "title": "Data Staging via xcopy to Temp Directory",
+  "id": "crucible-data-staging",
+  "status": "experimental",
+  "description": "Detects bulk file copy to a temp/staging directory — pre-exfiltration indicator.",
+  "tags": ["attack.collection", "attack.t1074.001"],
+  "logsource": {"category": "process_creation"},
+  "detection": {
+    "selection": {"class_uid": 1007, "process.cmd_line|contains": "xcopy"},
+    "condition": "selection"
+  },
+  "level": "high"
+}

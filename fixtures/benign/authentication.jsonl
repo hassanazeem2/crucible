@@ -1,0 +1,2 @@
+{"timestamp":"2026-01-01T01:00:00.000Z","scenario_id":"benign-control","source":"authentication","event_type":"authentication","src_ip":"127.0.0.1","dst_ip":"127.0.0.1","username":"analyst","outcome":"success","method":"password"}
+

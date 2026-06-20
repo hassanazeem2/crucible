@@ -1,0 +1,18 @@
+{
+  "title": "Administrative Simulation Endpoint Access",
+  "id": "dtm-admin-endpoint",
+  "status": "experimental",
+  "description": "Detects access to the range's protected command simulation endpoint.",
+  "tags": ["attack.defense-evasion", "attack.t1078"],
+  "logsource": {"category": "webserver"},
+  "detection": {
+    "selection": {
+      "class_uid": 4002,
+      "http_request.url.path": "/admin/simulate-command"
+    },
+    "condition": "selection"
+  },
+  "falsepositives": ["Authorized range validation"],
+  "level": "high"
+}
+

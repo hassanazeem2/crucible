@@ -1,0 +1,18 @@
+{
+  "title": "Suspicious Simulated Shell Command",
+  "id": "dtm-simulated-shell",
+  "status": "experimental",
+  "description": "Detects a network utility in a simulated shell command line.",
+  "tags": ["attack.execution", "attack.t1059.004"],
+  "logsource": {"category": "process_creation"},
+  "detection": {
+    "selection": {
+      "class_uid": 1007,
+      "process.cmd_line|contains": "curl"
+    },
+    "condition": "selection"
+  },
+  "falsepositives": ["Administrator troubleshooting"],
+  "level": "high"
+}
+

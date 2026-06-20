@@ -1,0 +1,2 @@
+{"timestamp":"2026-01-01T01:00:00.750Z","scenario_id":"benign-control","source":"network","event_type":"network_connection","src_ip":"operator","dst_ip":"victim","protocol":"HTTP","method":"GET","path":"/health","status":200}
+

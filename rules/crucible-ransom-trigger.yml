@@ -1,0 +1,13 @@
+{
+  "title": "Ransomware Trigger — VSS Deletion + Cipher Encryption",
+  "id": "crucible-ransom-trigger",
+  "status": "experimental",
+  "description": "Detects vssadmin delete shadows — a hallmark ransomware pre-encryption step.",
+  "tags": ["attack.impact", "attack.t1486"],
+  "logsource": {"category": "process_creation"},
+  "detection": {
+    "selection": {"class_uid": 1007, "process.cmd_line|contains": "vssadmin"},
+    "condition": "selection"
+  },
+  "level": "critical"
+}

@@ -1,0 +1,41 @@
+{
+  "id": "lateral-movement-001",
+  "name": "Lateral Movement via Pass-the-Hash",
+  "description": "Simulates credential dumping followed by lateral movement using harvested hashes.",
+  "mitre_phases": ["Credential Access", "Lateral Movement", "Persistence"],
+  "expected_rules": [
+    "crucible-credential-dump",
+    "crucible-lateral-move",
+    "crucible-new-service"
+  ],
+  "steps": [
+    {
+      "action": "valid_login",
+      "technique_id": "T1078",
+      "description": "Attacker logs in with compromised low-privilege account.",
+      "path": "/login",
+      "payload": {"username": "helpdesk01", "password": "Helpdesk123"}
+    },
+    {
+      "action": "credential_dump",
+      "technique_id": "T1003.001",
+      "description": "Attacker dumps LSASS memory to harvest credential hashes.",
+      "path": "/admin/simulate-command",
+      "payload": {"username": "helpdesk01", "command": "mimikatz sekurlsa::logonpasswords"}
+    },
+    {
+      "action": "lateral_move",
+      "technique_id": "T1550.002",
+      "description": "Attacker uses harvested hash to authenticate to another system.",
+      "path": "/admin/simulate-command",
+      "payload": {"username": "helpdesk01", "command": "wmiexec.py admin@192.168.1.50 -hashes :aad3b435b51404eeaad3b435b51404ee"}
+    },
+    {
+      "action": "install_service",
+      "technique_id": "T1543.003",
+      "description": "Attacker installs a malicious service for persistence.",
+      "path": "/admin/simulate-command",
+      "payload": {"username": "helpdesk01", "command": "sc create backdoor binPath= C:\\Windows\\Temp\\svc.exe start= auto"}
+    }
+  ]
+}

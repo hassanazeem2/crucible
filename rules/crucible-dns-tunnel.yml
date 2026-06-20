@@ -1,0 +1,13 @@
+{
+  "title": "DNS Tunneling Exfiltration",
+  "id": "crucible-dns-tunnel",
+  "status": "experimental",
+  "description": "Detects iodine DNS tunneling tool — used for covert data exfiltration.",
+  "tags": ["attack.exfiltration", "attack.t1048.003"],
+  "logsource": {"category": "process_creation"},
+  "detection": {
+    "selection": {"class_uid": 1007, "process.cmd_line|contains": "iodine"},
+    "condition": "selection"
+  },
+  "level": "critical"
+}

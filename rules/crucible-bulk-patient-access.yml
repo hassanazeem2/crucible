@@ -1,0 +1,13 @@
+{
+  "title": "Bulk Patient Record Access — HIPAA Insider Threat",
+  "id": "crucible-bulk-patient-access",
+  "status": "experimental",
+  "description": "Detects bulk SQL queries against patient records — insider threat indicator.",
+  "tags": ["attack.collection", "attack.t1005"],
+  "logsource": {"category": "process_creation"},
+  "detection": {
+    "selection": {"class_uid": 1007, "process.cmd_line|contains": "SELECT * FROM patient_records"},
+    "condition": "selection"
+  },
+  "level": "critical"
+}

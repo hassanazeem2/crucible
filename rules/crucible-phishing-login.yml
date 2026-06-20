@@ -1,0 +1,13 @@
+{
+  "title": "Phishing Login — Credential Use After Suspicious Access Pattern",
+  "id": "crucible-phishing-login",
+  "status": "experimental",
+  "description": "Detects login from an account that matches known phishing simulation patterns.",
+  "tags": ["attack.initial-access", "attack.t1566.001"],
+  "logsource": {"category": "authentication"},
+  "detection": {
+    "selection": {"class_uid": 3002, "status": "success", "user.name": "jsmith"},
+    "condition": "selection"
+  },
+  "level": "high"
+}

@@ -1,0 +1,13 @@
+{
+  "title": "C2 Beaconing via HTTP",
+  "id": "crucible-c2-beacon",
+  "status": "experimental",
+  "description": "Detects periodic HTTP requests to known C2 patterns with beacon intervals.",
+  "tags": ["attack.command-and-control", "attack.t1071.004"],
+  "logsource": {"category": "process_creation"},
+  "detection": {
+    "selection": {"class_uid": 1007, "process.cmd_line|contains": "beacon"},
+    "condition": "selection"
+  },
+  "level": "critical"
+}

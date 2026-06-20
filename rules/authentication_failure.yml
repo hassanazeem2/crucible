@@ -1,0 +1,18 @@
+{
+  "title": "Password Guess Against Lab Account",
+  "id": "dtm-auth-failure",
+  "status": "experimental",
+  "description": "Detects failed password authentication in the range.",
+  "tags": ["attack.credential-access", "attack.t1110.001"],
+  "logsource": {"category": "authentication"},
+  "detection": {
+    "selection": {
+      "class_uid": 3002,
+      "status": "failure"
+    },
+    "condition": "selection"
+  },
+  "falsepositives": ["Users mistyping a password"],
+  "level": "medium"
+}
+

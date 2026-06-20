@@ -1,0 +1,13 @@
+{
+  "title": "Suspicious System Enumeration Commands",
+  "id": "crucible-suspicious-enum",
+  "status": "experimental",
+  "description": "Detects net user or net share enumeration commands — common recon step.",
+  "tags": ["attack.discovery", "attack.t1087.001", "attack.t1135"],
+  "logsource": {"category": "process_creation"},
+  "detection": {
+    "selection": {"class_uid": 1007, "process.cmd_line|contains": "net user"},
+    "condition": "selection"
+  },
+  "level": "medium"
+}

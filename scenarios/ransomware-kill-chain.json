@@ -1,0 +1,49 @@
+{
+  "id": "ransomware-kill-chain-001",
+  "name": "Ransomware Kill Chain",
+  "description": "Simulates a full ransomware kill chain: initial access via phishing, persistence, enumeration, data staging, and simulated encryption trigger.",
+  "mitre_phases": ["Initial Access", "Execution", "Persistence", "Discovery", "Collection", "Impact"],
+  "expected_rules": [
+    "crucible-phishing-login",
+    "crucible-suspicious-enum",
+    "crucible-data-staging",
+    "crucible-ransom-trigger"
+  ],
+  "steps": [
+    {
+      "action": "phishing_login",
+      "technique_id": "T1566.001",
+      "description": "Attacker uses phishing link to submit stolen credentials.",
+      "path": "/login",
+      "payload": {"username": "jsmith", "password": "Summer2024!"}
+    },
+    {
+      "action": "enumerate_users",
+      "technique_id": "T1087.001",
+      "description": "Attacker enumerates local user accounts.",
+      "path": "/admin/simulate-command",
+      "payload": {"username": "jsmith", "command": "net user /domain"}
+    },
+    {
+      "action": "enumerate_shares",
+      "technique_id": "T1135",
+      "description": "Attacker enumerates network shares.",
+      "path": "/admin/simulate-command",
+      "payload": {"username": "jsmith", "command": "net share && net view"}
+    },
+    {
+      "action": "stage_data",
+      "technique_id": "T1074.001",
+      "description": "Attacker stages sensitive files for exfiltration.",
+      "path": "/admin/simulate-command",
+      "payload": {"username": "jsmith", "command": "xcopy C:\\Users\\*.docx C:\\Temp\\staging /s /e"}
+    },
+    {
+      "action": "ransom_trigger",
+      "technique_id": "T1486",
+      "description": "Attacker triggers simulated encryption routine.",
+      "path": "/admin/simulate-command",
+      "payload": {"username": "jsmith", "command": "vssadmin delete shadows /all /quiet && cipher /e /s:C:\\Users"}
+    }
+  ]
+}

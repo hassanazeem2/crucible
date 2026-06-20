@@ -1,0 +1,8 @@
+artifacts/
+outputs/
+*.egg-info/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.DS_Store

@@ -1,0 +1,13 @@
+{
+  "title": "After-Hours EHR System Login",
+  "id": "crucible-after-hours-access",
+  "status": "experimental",
+  "description": "Detects nurse_chen login outside normal business hours — insider threat indicator.",
+  "tags": ["attack.initial-access", "attack.t1078"],
+  "logsource": {"category": "authentication"},
+  "detection": {
+    "selection": {"class_uid": 3002, "status": "success", "user.name": "nurse_chen"},
+    "condition": "selection"
+  },
+  "level": "high"
+}

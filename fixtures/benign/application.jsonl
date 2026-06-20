@@ -1,0 +1,2 @@
+{"timestamp":"2026-01-01T01:00:00.250Z","scenario_id":"benign-control","source":"application","event_type":"http_request","src_ip":"127.0.0.1","dst_ip":"127.0.0.1","method":"GET","path":"/health","status":200,"user_agent":"health-check"}
+

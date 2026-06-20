@@ -1,0 +1,2 @@
+{"timestamp":"2026-01-01T01:00:00.500Z","scenario_id":"benign-control","source":"endpoint","event_type":"process_start","src_ip":"127.0.0.1","dst_ip":"127.0.0.1","process_name":"maintenance","command_line":"print-status","parent_process":"dtm-victim","simulated":true}
+
