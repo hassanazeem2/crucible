@@ -1,4 +1,7 @@
-.PHONY: demo gui replay test docker-demo clean
+.PHONY: demo gui replay test docker-demo clean crucible
+
+crucible:
+	python3 crucible.py
 
 demo:
 	PYTHONPATH=src python3 -m dtm demo

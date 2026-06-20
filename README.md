@@ -1,38 +1,85 @@
-<img width="889" height="732" alt="Screenshot 2026-06-12 at 9 54 29 AM" src="https://github.com/user-attachments/assets/8d519fc3-ef6c-4076-b4e9-62fbabe674c7" />
+<img src="docs/screenshots/crucible-main-menu.png" alt="Crucible CLI main menu" width="900" />
 
+# Crucible (DTM v2)
 
-# Detection Time Machine
+**Crucible** is a reproducible purple-team lab by **Hassan Azeem** that answers one question fast:
 
-A small, reproducible cyber range that records a safe attack simulation, normalizes the resulting telemetry into OCSF-shaped events, evaluates Sigma-style rules, and measures detection quality.
+> *Would my detections actually catch this?*
 
-Built this because I wanted a fast way to answer "would my detections actually catch this?" without spinning up a full lab every time. Everything's deterministic and safe to run in CI — nothing here actually executes an attack.
+It simulates safe ATT&CK-mapped attack chains, normalizes the resulting telemetry into OCSF-shaped events, evaluates Sigma-style rules, and measures detection quality — without ever executing real attacks.
 
-## What it simulates
+- **Author:** Hassan Azeem · [hazeem.org](https://hazeem.org) · [github.com/hassanazeem2](https://github.com/hassanazeem2)
+- **Version:** 2.0.0
+- **Status:** Deterministic, CI-safe, local-first
 
-| Action | MITRE ATT&CK | Telemetry | Detection |
-|---|---|---|---|
-| Password guessing | T1110.001 | Authentication + network | Failed password rule |
-| Valid lab account | T1078 | Authentication + network | Timeline context |
-| Simulated shell command | T1059.004 | HTTP + endpoint + network | Admin endpoint and command-line rules |
+## Why I built this
 
-The "shell command" step is **never executed**. The victim writes a process-shaped event with `simulated: true`, so this is safe to run anywhere including CI.
+Detection engineering often gets stuck between two bad options: spin up a full lab for every rule change, or trust that a query *looks* right on paper. I built Crucible to sit in the middle — a fast, repeatable way to simulate attacker behavior, replay telemetry, and measure whether detections actually fire when they should (and stay quiet when they shouldn't).
 
-## Quick Start
+Crucible is the evolution of **Detection Time Machine (DTM v2)**: same reproducible engine, now with an interactive CLI, richer scenarios, a web GUI, and measurable purple-team workflows.
 
-Only requirement is Python 3.11+.
+## Quick start
+
+Python 3.11+ is the only requirement.
 
 ```bash
+pip install rich pyfiglet
 make test
+make crucible
 make gui
 make demo
 make replay
 ```
 
-`make gui` opens a local web interface at http://127.0.0.1:8765 where you can run the deterministic demo, replay the latest recording, inspect metrics/alerts/OCSF telemetry, and open the generated timeline report.
+Launch the interactive CLI:
 
-If port 8765 is already in use, the GUI automatically tries the next available port and prints the URL to open.
+```bash
+python crucible.py
+```
 
-You can also just run the demo from the CLI and open `artifacts/latest/report.html` directly. The recording also contains:
+Launch the web GUI:
+
+```bash
+make gui
+```
+
+## CLI showcase
+
+The terminal interface is the primary way to explore Crucible — run scenarios, inspect artifacts, browse rules, and review ATT&CK coverage without touching the command line for every step.
+
+### Main menu
+
+<img src="docs/screenshots/crucible-main-menu.png" alt="Crucible main menu" width="900" />
+
+### Scenario library
+
+<img src="docs/screenshots/scenario-select.png" alt="Scenario selection screen" width="900" />
+
+Five deterministic ATT&CK-mapped chains ship out of the box:
+
+| Scenario | Techniques | Steps | Expected rules |
+|---|---:|---:|---:|
+| Credential Access + Shell Execution | T1110, T1078, T1059 | 4 | 3 |
+| Ransomware Kill Chain | T1566, T1087, T1486 | 5 | 4 |
+| Lateral Movement via Pass-the-Hash | T1003, T1550, T1543 | 4 | 4 |
+| Data Exfil via DNS Tunneling | T1005, T1048, T1071 | 4 | 4 |
+| HIPAA Insider Threat — PHI Access | T1078, T1005, T1048 | 3 | 3 |
+
+### ATT&CK coverage heatmap
+
+<img src="docs/screenshots/attack-heatmap.png" alt="ATT&CK coverage heatmap" width="900" />
+
+### Detection rule library
+
+<img src="docs/screenshots/rule-library.png" alt="Detection rule library" width="900" />
+
+Crucible ships **16 Sigma-style rules** across credential access, ransomware, lateral movement, exfiltration, and HIPAA insider-threat patterns.
+
+### Artifact inspector
+
+<img src="docs/screenshots/artifact-inspector.png" alt="Artifact inspector" width="900" />
+
+Every run produces a complete recording:
 
 ```text
 artifacts/latest/
@@ -45,19 +92,56 @@ artifacts/latest/
 └── report.html                  # action → telemetry → alert timeline
 ```
 
-Replay a recording after changing or adding rules:
+## Architecture
 
-```bash
-make replay
+```mermaid
+flowchart LR
+    A["Attacker<br/>safe simulated actions"] --> V["Victim<br/>lab service"]
+    V --> L[("Raw telemetry")]
+    A --> L
+    L --> N["Normalizer<br/>OCSF events"]
+    N --> S["Sigma engine<br/>16 rules"]
+    S --> M["Metrics<br/>coverage · TTD · FP rate"]
+    M --> R["Reports<br/>CLI · Web · HTML timeline"]
 ```
 
-Run the GUI headless:
+## Measurement model
+
+`metrics.json` captures the experiment quality gates:
+
+| Metric | What it tells you |
+|---|---|
+| **Detection coverage** | Expected scenario rule IDs that fired |
+| **Time to detect** | First alert minus first attacker action |
+| **False positives** | Alerts generated by benign control traffic |
+| **False-positive rate** | Benign alerts divided by benign events |
+| **Missed / unexpected rules** | Gaps in expected detection behavior |
+
+Example output from a successful ransomware scenario run:
+
+| Metric | Value |
+|---|---:|
+| Scenario | `ransomware-kill-chain-001` |
+| Coverage | 100% |
+| Alerts | 4 |
+| Time to detect | 30.0s |
+| False positives | 0 |
+
+## Safety model
+
+Nothing in Crucible executes real attacks. Simulated shell commands, credential dumps, ransomware triggers, and exfiltration steps are written as **telemetry-only events** with `simulated: true`. That makes the range safe to run locally, in CI, and in shared lab environments.
+
+## Web GUI
+
+Crucible also includes a local web interface for demo runs, replay, metrics, alerts, OCSF telemetry, and timeline inspection.
 
 ```bash
-PYTHONPATH=src python3 -m dtm gui --no-open
+make gui
 ```
 
-## Container Range
+If port `8765` is busy, the GUI automatically tries the next available port and prints the URL to open.
+
+## Container range
 
 With Docker installed:
 
@@ -65,57 +149,21 @@ With Docker installed:
 make docker-demo
 ```
 
-Compose spins up an internal-only network with four services:
+Compose creates an internal-only network with attacker, victim, monitor, and PCAP services — the same reproducible pipeline, packaged for container workflows.
 
-```mermaid
-flowchart LR
-    A["Attacker<br/>safe HTTP actions"] --> V["Victim<br/>lab service"]
-    V --> L[("Shared raw logs")]
-    A --> L
-    P["PCAP sensor<br/>tcpdump"] --> C["capture.pcap"]
-    L --> M["Monitor<br/>OCSF + Sigma"]
-    M --> R["Alerts, metrics,<br/>timeline report"]
-```
+## Extending Crucible
 
-- `attacker` — runs the deterministic ATT&CK-mapped scenario and exits
-- `victim` — exposes only the intentionally limited lab API
-- `monitor` — normalizes logs, evaluates rules, produces the report
-- `pcap` — captures port 8080 traffic from the victim network namespace
-
-Containers are read-only with `no-new-privileges`, and only share the experiment artifact directory. The range network is `internal: true` — the "command" step uses inert `example.invalid` text and never actually runs.
-
-## Detection Rules
-
-Rules live in `rules/*.yml`. They're actually JSON documents with a YAML extension — JSON is a strict subset of YAML, so they stay valid YAML while keeping the project dependency-free.
-
-Supported Sigma subset:
-
-- Nested fields (e.g. `process.cmd_line`)
-- Equality
-- `contains`, `startswith`, `endswith`, `re` modifiers
-- Conditions built from named selections with `and`, `or`, `not`
-
-Keeps replay behavior easy to reason about. If you wanted to take this further, you could compile the same rules with pySigma and ship OCSF events to Elastic, Splunk, Loki, etc.
-
-## Measurements
-
-`metrics.json` records:
-
-- **Detection coverage** — expected scenario rule IDs that fired
-- **False positives** — alerts generated by the benign control fixture
-- **False-positive rate** — benign alerts ÷ benign events
-- **Time to detect** — first alert timestamp minus first attacker action
-- **Missed/unexpected rules** — useful as CI quality gates
-
-The GitHub Actions workflow runs unit tests, creates a fresh recording, enforces 100% expected coverage and zero benign alerts, then uploads the recording.
-
-## Extending it
-
-1. Add a scenario JSON file with ATT&CK IDs and deterministic steps
-2. Add a victim endpoint or sensor that emits a new raw event type
-3. Map the event in `src/dtm/normalize.py`
-4. Add a rule and its ID to `expected_rules`
-5. Add benign examples that resemble normal use
-6. Run `make test`, `make demo`, and replay prior recordings
+1. Add a scenario JSON file with ATT&CK IDs and deterministic steps under `scenarios/`.
+2. Add a Sigma-style rule under `rules/`.
+3. Map any new raw event types in `src/dtm/normalize.py`.
+4. Add benign negative-control examples under `fixtures/benign/`.
+5. Run `make test`, `python crucible.py`, and replay prior recordings.
 
 See [docs/architecture.md](docs/architecture.md) for system boundaries and design choices.
+
+## About the author
+
+**Hassan Azeem** builds security tooling that makes detection work practical — fast feedback loops, reproducible experiments, and interfaces that help analysts and engineers actually use the results. Crucible is part of that work: a purple-team lab you can run in minutes, not days.
+
+- Website: [hazeem.org](https://hazeem.org)
+- GitHub: [github.com/hassanazeem2](https://github.com/hassanazeem2)
